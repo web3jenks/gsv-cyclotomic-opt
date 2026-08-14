@@ -67,7 +67,10 @@ pub fn cyclotomic_exp_fast_inverse_montgomery_fast<C: CircuitContext>(
     f: &Fq12,
 ) -> Fq12 {
     let mut res = Fq12::new_constant(ark_bn254::Fq12::ONE);
-    let f_inverse = Fq12::inverse_montgomery(circuit, f);
+    // `f` must lie in the cyclotomic subgroup (guaranteed after the easy part of the
+    // final exponentiation, and already assumed by the cyclotomic squarings below).
+    // There x^(p^6+1) = 1, so the inverse is the conjugate x^(p^6).
+    let f_inverse = Fq12::conjugate(circuit, f);
 
     let mut found_nonzero = false;
     for value in ark_ff::biginteger::arithmetic::find_naf(ark_bn254::Config::X)
@@ -105,12 +108,14 @@ pub fn final_exponentiation_montgomery<C: CircuitContext>(circuit: &mut C, f: &F
     let u_frobenius = Fq12::frobenius_montgomery(circuit, &u, 2);
     let r = Fq12::mul_montgomery(circuit, &u_frobenius, &u);
 
+    // `r` and all its powers below lie in the cyclotomic subgroup, so the cheaper
+    // cyclotomic squaring applies.
     let y0 = exp_by_neg_x_montgomery(circuit, &r);
-    let y1 = Fq12::square_montgomery(circuit, &y0);
-    let y2 = Fq12::square_montgomery(circuit, &y1);
+    let y1 = Fq12::cyclotomic_square_montgomery(circuit, &y0);
+    let y2 = Fq12::cyclotomic_square_montgomery(circuit, &y1);
     let y3 = Fq12::mul_montgomery(circuit, &y1, &y2);
     let y4 = exp_by_neg_x_montgomery(circuit, &y3);
-    let y5 = Fq12::square_montgomery(circuit, &y4);
+    let y5 = Fq12::cyclotomic_square_montgomery(circuit, &y4);
     let y6 = exp_by_neg_x_montgomery(circuit, &y5);
     let y7 = Fq12::conjugate(circuit, &y3);
     let y8 = Fq12::conjugate(circuit, &y6);
