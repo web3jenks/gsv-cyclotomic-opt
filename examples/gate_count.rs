@@ -48,7 +48,6 @@ fn main() {
     }
 
     // Deterministic RNG for reproducibility
-    panic!("JENKS WAS HERE");
     let mut rng = ChaCha20Rng::seed_from_u64(12345);
 
     // Build a tiny multiplicative circuit and produce a valid Groth16 proof

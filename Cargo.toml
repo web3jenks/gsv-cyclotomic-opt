@@ -123,14 +123,19 @@ required-features = ["vsss", "test-utils"]
 
 [[example]]
 name = "gsv_vanilla"
+required-features = ["test-utils"]
 
 [[example]]
 name = "gsv_execute"
+required-features = ["test-utils"]
 
 [[example]]
 name = "gsv_garble"
+required-features = ["test-utils"]
 
 [[example]]
+name = "gate_count"
+required-features = ["test-utils"]
 
 [[example]]
 name = "soldering"
